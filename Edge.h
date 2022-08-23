@@ -1,6 +1,9 @@
 //
 // Created by fbab0006 on 5/08/2022.
 //
+//
+// Created by fbab0006 on 5/08/2022.
+//
 
 #ifndef TA_ALGORITHMS_EDGE_H
 #define TA_ALGORITHMS_EDGE_H
@@ -8,7 +11,7 @@
 
 
 class Edge {
-    int id;
+    //int id;
     int sourceVertexId;
     int destinationVertexId;
     double flow;//X
@@ -25,8 +28,7 @@ class Edge {
 
 
 public:
-    Edge(int id, int fromVertex, int toVertex, double capacity, double length, double fft, double b, double power,double speed, bool toll, bool link_type) {
-        Edge::id = id;
+    Edge(int fromVertex, int toVertex, double capacity, double length, double fft, double b, double power,double speed, bool toll, bool link_type) {
         Edge::sourceVertexId = fromVertex;
         Edge::destinationVertexId = toVertex;
         Edge::fft = fft;
@@ -41,9 +43,9 @@ public:
         Edge::toll = toll;
         Edge::link_type = link_type;
     }
-    int getId() {
-        return id;
-    }
+  //  int getId() {
+    //    return id;
+    //}
     double getAlpha() {
         return alpha;
     }
@@ -112,9 +114,9 @@ public:
     }
 
 
-    static bool compareEdge(Edge e1, Edge e2)
+  /*  static bool compareEdge(Edge e1, Edge e2)
     {
         return (e1.id < e2.id);
-    }
+    }*/
 };
 #endif //TA_ALGORITHMS_EDGE_H

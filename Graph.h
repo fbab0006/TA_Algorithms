@@ -17,105 +17,35 @@
 class Graph {
 
     vector < Vertex > vertices;
+   // vector<unsigned> start_index;
+    //vector<Edge> edge_list;
 
 public:
 
-    bool checkIfVertexExistByID(int vid) {
-        bool flag = false;
-        for (int i = 0; i < vertices.size(); i++) {
-            if (vertices.at(i).getID() == vid) {
-                return true;
-            }
-        }
-        return flag;
-    }
 
     void addVertex(Vertex newVertex) {
-        bool check = checkIfVertexExistByID(newVertex.getID());
-        if (check == true) {
-//            cout << "Vertex with this ID already exist" << endl;
-        } else {
             vertices.push_back(newVertex);
 //            cout << "New Vertex Added Successfully" << endl;
         }
-    }
 
     Vertex getVertexByID(int vid) {
-        Vertex temp;
-        for (int i = 0; i < vertices.size(); i++) {
-            temp = vertices.at(i);
-            if (temp.getID() == vid) {
+        Vertex temp = vertices[vid-1];
                 return temp;
             }
-        }
-        return temp;
+
+    void addEdge(int fromVertex, int toVertex, double capacity, double length, double fft, double b, double power,double speed, bool toll, bool link_type) {
+        Edge edge(fromVertex, toVertex, capacity, length, fft, b, power, speed, toll, link_type);
+        vertices[fromVertex-1].edgeList.push_back(edge);
     }
 
-    bool checkIfEdgeExistByID(int fromVertex, int toVertex) {
-        Vertex v = getVertexByID(fromVertex);
-        list < Edge > e;
-        e = v.getEdgeList();
-        bool flag = false;
-        for (auto it = e.begin(); it != e.end(); it++) {
-            if (it -> getDestinationVertexId() == toVertex) {
-                flag = true;
-                return flag;
-            }
-
-        }
-        return flag;
-    }
-
-    void addEdgeByID(int id, int fromVertex, int toVertex, double capacity, double length, double fft, double b, double power,double speed, bool toll, bool link_type) {
-        bool check1 = checkIfVertexExistByID(fromVertex);
-        bool check2 = checkIfVertexExistByID(toVertex);
-
-        bool check3 = checkIfEdgeExistByID(fromVertex, toVertex);
-        if ((check1 && check2)) {
-
-            if (check3) {
-//                cout << "Edge between " << getVertexByID(fromVertex).getID() << "(" << fromVertex << ") and " << getVertexByID(toVertex).getID() << "(" << toVertex << ") Already Exist" << endl;
-            } else {
-
-                for (auto & vertice : vertices) {
-                    if (vertice.getID() == fromVertex) {
-                        Edge edge(id, fromVertex, toVertex, capacity, length, fft, b, power,speed, toll, link_type);
-                        vertice.edgeList.push_back(edge);
-                    }
-                }
-//                cout << "Edge between " << fromVertex << " and " << toVertex << " added Successfully" << endl;
-            }
-        } else {
-//            cout << "Invalid Vertex ID entered.";
-        }
-    }
 
     void assignAllOrNothing(int fromVertex, int toVertex, double demand) {
-        for (auto & vertex : vertices) {  //going through all the vertices in the graph
-            if (vertex.getID() == fromVertex) {
-                for (auto & edge: vertex.edgeList) {
-                    if (edge.getDestinationVertexId() == toVertex) {
-                        edge.setAuxFlow(edge.getAuxFlow() + demand);
-                        break;
-                    }
-                }
-                break;
-            }
-        }
-    }
-   //line 18 & 19 of pseudocode
-    void updateEdgeAuxFlow(int fromVertex, int toVertex, double odPair) {
-            for (auto & vertex : vertices) {
-                if (vertex.getID() == fromVertex) {
-                    for (auto & edge: vertex.edgeList) {
-                        if (edge.getDestinationVertexId() == toVertex) {
-                            edge.setAuxFlow(edge.getAuxFlow() + odPair); //how
-                            break;
-                        }
-                    }
-                    break;
-                }
-            }
+         for (auto & edge:  vertices[fromVertex-1].edgeList){
+             if (edge.getDestinationVertexId() == toVertex) {
+                 edge.setAuxFlow(edge.getAuxFlow() + demand);
+                 break;
+             }
+         }
     }
 
     void updateEdgeFlowAndCost(double lambda) {
@@ -123,27 +53,10 @@ public:
             for (auto & edge : vertices.at(i).edgeList) {
                 edge.calculateFlow(lambda);
                 edge.calculateBPRCost();
+                edge.setAuxFlow(0.0f);
             }
         }
     }
-
-    void resetEdgeAuxFlow() {
-        for (int i = 0; i < vertices.size(); i++) {
-            for (auto edge = vertices.at(i).edgeList.begin(); edge != vertices.at(i).edgeList.end(); edge++) {
-                edge->setAuxFlow(0.0f);
-            }
-        }
-    }
-
- /*  void updateEdgesCost() {
-        for (int i = 0; i < vertices.size(); i++) {
-            for (auto & edge : vertices.at(i).edgeList) {
-                edge.calculateBPRCost();
-                //cout<< edge.getFlow()<<"AEC: "<< edge.getCost()<< endl;
-            }
-        }
-    }
-    */
 
     double calculateAEC(const vector<TripMatrix>& odPairs) {
         double sumTemp1 = 0.0;//t.x
@@ -173,14 +86,10 @@ public:
                 edges.push_back(edge);
             }
         }
-        sort(edges.begin(), edges.end(), Edge::compareEdge);
+       // sort(edges.begin(), edges.end(), Edge::compareEdge);
         for (auto edge : edges) {
             cout<<edge.getSourceVertexId()<<"    "<<edge.getDestinationVertexId()<<"   "<< "   "<<edge.getFlow()<< "  "<<edge.getCost() <<endl;
         }
-    }
-
-    int getNoOfVertices() {
-        return vertices.size();
     }
 
     void printGraph() {
@@ -234,10 +143,14 @@ Graph readGraphFromFile() {
     }
     Graph graph;
     Vertex v1;
+    for (int i = 0; i < V+1; ++i){
+        v1.setID(i+1);
+        graph.addVertex(v1);
+    }
     for (int i = 0; i < N; ++i) {
         // Read a list of vertices and dump it on stdout with commas
         int scanResponse;
-        double numbers[11];
+        double numbers[10];
         int counter = 0;
         do {
             double number;
@@ -249,11 +162,7 @@ Graph readGraphFromFile() {
             scanResponse = fscanf(f, "%[;]", &newline);
         } while (scanResponse == 0);
 
-        v1.setID(numbers[1]);
-        graph.addVertex(v1);
-        v1.setID(numbers[2]);
-        graph.addVertex(v1);
-        graph.addEdgeByID( numbers[0], numbers[1], numbers[2], numbers[3], numbers[4], numbers[5], numbers[6],numbers[7], numbers[8], numbers[9], numbers[10]);
+        graph.addEdge( numbers[0], numbers[1], numbers[2], numbers[3], numbers[4], numbers[5], numbers[6],numbers[7], numbers[8], numbers[9]);
 
         if (scanResponse == -1 || scanResponse == 0) {
             break;
