@@ -7,4 +7,4 @@ set(CMAKE_CXX_STANDARD 14)
 #    SET(CMAKE_BUILD_TYPE "RELEASE")
 #ENDIF()
 
-add_executable(TA_Algorithms main.cpp Edge.h Vertex.h Graph.h Dijkstra.h TripMatrix.h ShortestPath.h timer.h timer.cpp)
+add_executable(TA_Algorithms main.cpp Edge.h Vertex.h Graph.h Dijkstra.h TripMatrix.h ShortestPath.h)

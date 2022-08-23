@@ -9,71 +9,42 @@
 
 class Edge {
     int id;
-    int sourceVertexId;
     int destinationVertexId;
-    double flow;//X
-    double auxflow;//X*
-    double cost;//t
-    double fft;//initial weight
-    double capacity;
-    double beta;   //b
-    double alpha; //power
-    double length;
-    double speed;
-    bool toll;
-    bool link_type;
+    float flow;//X
+    float auxflow;//X*
+    float cost;//t
+    float fft;//initial weight
+    float capacity;
+    float beta;
+    float alpha;
 
 
 public:
-    Edge(int id, int fromVertex, int toVertex, double capacity, double length, double fft, double b, double power,double speed, bool toll, bool link_type) {
+
+
+    Edge(int id, int destinationVertexId, float fft) {
         Edge::id = id;
-        Edge::sourceVertexId = fromVertex;
-        Edge::destinationVertexId = toVertex;
+        Edge::destinationVertexId = destinationVertexId;
         Edge::fft = fft;
-        Edge::flow = 0.0;
-        Edge::auxflow = 0.0;
+        Edge::flow = 0;
+        Edge::auxflow = 0;
         Edge::cost = fft;
-        Edge::capacity = capacity;
-        Edge::length= length;
-        Edge::beta = b;
-        Edge::alpha = power;
-        Edge::speed = speed;
-        Edge::toll = toll;
-        Edge::link_type = link_type;
     }
-    int getId() {
+
+    Edge(float flow, float auxflow) : flow(flow), auxflow(auxflow) {}
+
+    float getId() {
         return id;
     }
-    double getAlpha() {
-        return alpha;
-    }
-
-    int getSourceVertexId() {
-        return sourceVertexId;
-    }
-
-    void setSourceVertexId(int sourceVertexId) {
-        Edge::sourceVertexId = sourceVertexId;
-    }
-
-    double getCapacity() {
-        return capacity;
-    }
-
-    double getBeta() {
-        return beta;
-    }
-
-
-    double getFFT() {
+    float getFFT() {
         return fft;
     }
 
-    double getCost()  {
+    float getCost() const {
         return cost;
     }
 
-    void setCost(double cost) {
+    void setCost(float cost) {
         Edge::cost = cost;
     }
 
@@ -81,40 +52,35 @@ public:
         return destinationVertexId;
     }
 
-    void setFlow(double flow) {
+    void setFlow(float flow) {
         Edge::flow = flow;
     }
 
-    double getFlow() {
+    float getFlow() {
         return flow;
     }
 
-    void setAuxFlow(double auxflow) {
+    void setAuxFlow(float auxflow) {
         Edge::auxflow = auxflow;
     }
 
-    double getAuxFlow() {
+    float getAuxFlow() {
         return auxflow;
     }
 
-  //  void calculateCost(){
-    //    Edge::cost = fft + (flow/100);
-    //}
+    void calculateCost(){
+        Edge::cost = fft + (flow/100);
+    }
 
-    void calculateFlow(double lambda) {
+    void calculateFlow(int iteration) {
+        float lambda = 1.0f / (iteration + 1.0f);
         flow = (lambda * auxflow) + ((1 - lambda) * flow);
     }
 
-    void calculateBPRCost(){
-        double temp = (1.0 + (beta * pow((flow/capacity), alpha)));
-        cost = fft * temp;
-
-    }
-
-
-    static bool compareEdge(Edge e1, Edge e2)
-    {
-        return (e1.id < e2.id);
-    }
+//    double CostFunction(float alpha, float beta, float capacity, float flow){
+//        double cost = fft * (1 + alpha * pow((flow * 1.0 / capacity), beta));
+//        return cost;
+//
+//    }
 };
 #endif //TA_ALGORITHMS_EDGE_H

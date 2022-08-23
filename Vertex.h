@@ -13,14 +13,6 @@ public:
     int vid;
     list <Edge> edgeList;
 
-    int getVid() const {
-        return vid;
-    }
-
-    void setVid(int vid) {
-        Vertex::vid = vid;
-    }
-
     Vertex() {
         vid = 0;
     }

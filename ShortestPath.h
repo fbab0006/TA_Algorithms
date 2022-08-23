@@ -11,6 +11,6 @@
 using namespace std;
 
 struct ShortestPath{
-    double cost;
+    float cost;
     vector<int> path;
 };
