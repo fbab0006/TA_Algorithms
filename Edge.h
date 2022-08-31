@@ -37,8 +37,8 @@ public:
         Edge::cost = fft;
         Edge::capacity = capacity;
         Edge::length= length;
-        Edge::beta = b;
-        Edge::alpha = power;
+        Edge::alpha = b;
+        Edge::beta = power;
         Edge::speed = speed;
         Edge::toll = toll;
         Edge::link_type = link_type;
@@ -99,20 +99,18 @@ public:
         return auxflow;
     }
 
-  //  void calculateCost(){
-    //    Edge::cost = fft + (flow/100);
-    //}
-
     void calculateFlow(double lambda) {
         flow = (lambda * auxflow) + ((1 - lambda) * flow);
     }
 
     void calculateBPRCost(){
-        double temp = (1.0 + (beta * pow((flow/capacity), alpha)));
+        double temp = (1.0 + (alpha * pow((flow/capacity), beta)));
         cost = fft * temp;
-
     }
-
+   double bvalue(double f){
+       double temp = fft*(1.0 + (alpha * pow((f/capacity), beta)));
+       return temp;
+    };
 
   /*  static bool compareEdge(Edge e1, Edge e2)
     {

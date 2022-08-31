@@ -27,6 +27,9 @@ public:
             vertices.push_back(newVertex);
 //            cout << "New Vertex Added Successfully" << endl;
         }
+    int getNoOfVertices() {
+        return vertices.size();
+    }
 
     Vertex getVertexByID(int vid) {
         Vertex temp = vertices[vid-1];
@@ -38,6 +41,15 @@ public:
         vertices[fromVertex-1].edgeList.push_back(edge);
     }
 
+    void updateEdgeFlowAndCost(double lambda) {
+        for (int i = 0; i < vertices.size(); i++) {
+            for (auto & edge : vertices.at(i).edgeList) {
+                edge.calculateFlow(lambda);
+                edge.calculateBPRCost();
+                edge.setAuxFlow(0.0f);
+           }
+        }
+    }
 
     void assignAllOrNothing(int fromVertex, int toVertex, double demand) {
          for (auto & edge:  vertices[fromVertex-1].edgeList){
@@ -48,34 +60,22 @@ public:
          }
     }
 
-    void updateEdgeFlowAndCost(double lambda) {
-        for (int i = 0; i < vertices.size(); i++) {
-            for (auto & edge : vertices.at(i).edgeList) {
-                edge.calculateFlow(lambda);
-                edge.calculateBPRCost();
-                edge.setAuxFlow(0.0f);
-            }
-        }
-    }
-
     double calculateAEC(const vector<TripMatrix>& odPairs) {
-        double sumTemp1 = 0.0;//t.x
-        double sumTemp2 = 0.0;//k.d
-        double sumDemand = 0.0;//d.1
+        double TSTT = 0.0;//t.x
+        double SPTT = 0.0;//k.d
         //calculating TSTT
         for (auto vertex: vertices) {
             for (auto edge: vertex.edgeList) {
-                sumTemp1 += edge.getFlow() * edge.getCost();
+                TSTT += edge.getFlow() * edge.getCost();
             }
         }
 
         for (auto odPair: odPairs) {
-            sumTemp2 += odPair.getDemand() * odPair.getShortestPath().cost;
-            sumDemand += odPair.getDemand();
+            SPTT += odPair.getDemand() * odPair.getShortestPath().cost;
         }
-        cout<<"TSTT: "<<sumTemp1<<" SPTT: "<<sumTemp2<<" D: "<<sumDemand<<endl;
-        cout<<"Diff: "<<(sumTemp1 - sumTemp2)<<" AEC: "<<(sumTemp1 - sumTemp2)/sumDemand<<endl;
-        return (sumTemp1 - sumTemp2)/sumDemand;
+
+        cout<<"TSTT: "<<TSTT<<endl;
+        return (TSTT / SPTT) - 1;
     }
 
     void printAllEdges() {
@@ -102,26 +102,42 @@ public:
     }
 
     double bisection() {
-        double l = 0, u = 1, lambda = 0;
-        int i= 0;
-        while (i<5) {
+        double temp = 0;
+        double lambda = 0.5;
+        for (int i = 0; i < vertices.size(); i++) {
+            for (auto &edge: vertices.at(i).edgeList) {
+                double flow = (lambda * edge.getAuxFlow()) + ((1 - lambda) * edge.getFlow());
+                double cost = edge.bvalue(flow);
+                temp += ((edge.getAuxFlow() - edge.getFlow())  * cost);
+            }
+        }
+        if (temp < 0) {
+            temp = 0;
+        } else if(temp > 1){
+            temp = 1;
+        }
+        return temp;
+    }
+
+    double bisectionold() {
+        double l = 0, u = 1, lambda;
+        while (u-l > 0.0001) {
             double temp = 0;
+            lambda = (l + u) / 2;
             for (int i = 0; i < vertices.size(); i++) {
                 for (auto &edge: vertices.at(i).edgeList) {
-                    lambda = (l + u) / 2;
                     double temp1 = ((lambda * edge.getAuxFlow()) + ((1 - lambda) * edge.getFlow()));
                     double temp2 = (edge.getAuxFlow() - edge.getFlow());
-                    double temp3 = edge.getFFT() + (temp1 / 100);
-                    temp += temp2 * temp3;
+                   // double temp3 = edge.getFFT() + (temp1 / 100);
+                    temp += temp2 * edge.bvalue(temp1);
                 }
             }
             if (temp > 0) {
                 u = lambda;
-            } else{
-                l = lambda;}
-            i++;
+            } else {
+                l = lambda;
+            }
         }
-        lambda = (u+l)/2;
         return lambda;
     }
 };
@@ -143,7 +159,7 @@ Graph readGraphFromFile() {
     }
     Graph graph;
     Vertex v1;
-    for (int i = 0; i < V+1; ++i){
+    for (int i = 0; i < V; ++i){
         v1.setID(i+1);
         graph.addVertex(v1);
     }

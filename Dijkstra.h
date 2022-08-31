@@ -48,8 +48,7 @@ ShortestPath printArr(vector<int>  parent, vector<double>  dist, int src, int de
 // vertices. It is a O(ELogV) function
 ShortestPath dijkstra(Graph graph, int src, int des)
 {
-    priority_queue<iPair, vector<iPair>, greater<iPair> >
-            pq;
+    priority_queue<iPair, vector<iPair>, greater<iPair> > pq;
     int V = graph.getNoOfVertices() + 1;  //correction of + 1 made for djikstra to start working
     // Create a vector for distances and initialize all
     // distances as infinite (INF)
@@ -73,9 +72,6 @@ ShortestPath dijkstra(Graph graph, int src, int des)
         // vertex
         list<pair<int, int> >::iterator i;
         for(auto edge: graph.getVertexByID(u).getEdgeList()){
-        //for (i = adj[u].begin(); i != adj[u].end(); ++i) {
-            // Get vertex label and weight of current
-            // adjacent of u.
             int v = edge.getDestinationVertexId();
             double weight = edge.getCost();
             //cout << weight << endl;
